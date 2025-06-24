@@ -1,12 +1,11 @@
-// home.js
-import React from 'react';
 import CafeCard from '../components/CafeCard';
-import { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Carrinho from '../components/Carrinho';
 
-const produtos = [
+
+const produtosFixos = [
   {
-    id: 1,
+    id: 100,
     nome: 'Café Expresso',
     categoria: 'Bebida',
     tipo: 'Quente',
@@ -15,7 +14,7 @@ const produtos = [
     imagem: '../imagens/cafe.jpg', 
   },
   {
-    id: 2,
+    id: 200,
     nome: 'Cappuccino',
     categoria: 'Bebida',
     tipo: 'Quente',
@@ -24,7 +23,7 @@ const produtos = [
     imagem: '../imagens/cappuccino.jpg', 
   },
   {
-    id: 3,
+    id: 300,
     nome: 'Pão de Queijo',
     categoria: 'Salgado',
     preco: 4.0,
@@ -32,7 +31,7 @@ const produtos = [
     imagem: '../imagens/pao-de-queijo.jpg',
   },
   {
-    id: 4,
+    id: 400,
     nome: 'Bolo de chocolate',
     categoria: 'Doce',
     preco: 6.0,
@@ -40,7 +39,7 @@ const produtos = [
     imagem: '../../imagens/bolo-de-chocolate.jpg',
   },
   {
-    id: 5,
+    id: 500,
     nome: 'Croissant',
     categoria: 'Salgado',
     preco: 6.5,
@@ -105,18 +104,41 @@ const produtos = [
     preco: 18.5,
     descricao: 'Frappuccino gelado com calda de chocolate e chantilly.',
     imagem: '../imagens/frappucino-chocolate.jpg',
-  },
-  
+  }
 ];
 
-const renderCategoria = (titulo, filtro, adicionarAoCarrinho) => {
-  return (
+const Home = () => {
+  const [carrinho, setCarrinho] = useState([]);
+  const [mostrarCarrinho, setMostrarCarrinho] = useState(false);
+  const [produtos, setProdutos] = useState([]);
+
+  // Carrega produtos do sessionStorage e combina com os fixos
+  useEffect(() => {
+  const produtosSalvos = JSON.parse(sessionStorage.getItem('produtos')) || [];
+  console.log('Produtos carregados do sessionStorage no Home:', produtosSalvos);
+  const todos = [...produtosFixos, ...produtosSalvos];
+  setProdutos(todos);
+}, []);
+
+  const adicionarAoCarrinho = (produto) => {
+    setCarrinho((anterior) => [...anterior, produto]);
+  };
+
+  const removerDoCarrinho = (index) => {
+    setCarrinho((anterior) => anterior.filter((_, i) => i !== index));
+  };
+
+  const toggleCarrinho = () => {
+    setMostrarCarrinho(!mostrarCarrinho);
+  };
+
+  const renderCategoria = (titulo, filtro) => (
     <>
       <h2 style={{ fontSize: '28px', margin: '40px 0 20px' }}>{titulo}</h2>
       <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center' }}>
         {produtos
           .filter(filtro)
-          .map(produto => (
+          .map((produto) => (
             <CafeCard
               key={produto.id}
               nome={produto.nome}
@@ -130,45 +152,46 @@ const renderCategoria = (titulo, filtro, adicionarAoCarrinho) => {
       </div>
     </>
   );
-};
-
-const Home = () => {
-  const [carrinho, setCarrinho] = useState([]);
-  const [mostrarCarrinho, setMostrarCarrinho] = useState(false);
-
-  const adicionarAoCarrinho = (produto) => {
-    setCarrinho(carrinhoAnterior => [...carrinhoAnterior, produto]);
-  };
-
-  const removerDoCarrinho = (index) => {
-    setCarrinho(carrinhoAnterior => carrinhoAnterior.filter((_, i) => i !== index));
-  };
-
-  const toggleCarrinho = () => setMostrarCarrinho(!mostrarCarrinho);
 
   return (
     <div style={{ position: 'relative', padding: '20px' }}>
-      
-      {/* Carrinho com botão flutuante */}
-      <Carrinho
-        visivel={mostrarCarrinho}
-        toggle={toggleCarrinho}
-        itens={carrinho}
-        onRemover={removerDoCarrinho}
-      />
+      <button
+        onClick={toggleCarrinho}
+        style={{
+          position: 'fixed',
+          top: '20px',
+          right: '20px',
+          backgroundColor: '#76530ede',
+          color: '#fff',
+          border: 'none',
+          borderRadius: '50%',
+          width: '50px',
+          height: '50px',
+          fontSize: '20px',
+          cursor: 'pointer',
+          zIndex: 1000
+        }}
+      >
+        🛒
+      </button>
 
-      {/* Produtos */}
+      {mostrarCarrinho && (
+        <Carrinho
+          visivel={mostrarCarrinho}
+          toggle={toggleCarrinho}
+          itens={carrinho}
+          onRemover={removerDoCarrinho}
+        />
+      )}
+
       <div style={{ maxWidth: '1200px', margin: '0 auto', textAlign: 'center' }}>
-        {renderCategoria('Salgados', p => p.categoria === 'Salgado', adicionarAoCarrinho)}
-        {renderCategoria('Doces', p => p.categoria === 'Doce', adicionarAoCarrinho)}
-        {renderCategoria('Bebidas Quentes', p => p.categoria === 'Bebida' && p.tipo === 'Quente', adicionarAoCarrinho)}
-        {renderCategoria('Bebidas Geladas', p => p.categoria === 'Bebida' && p.tipo === 'Gelada', adicionarAoCarrinho)}
+        {renderCategoria('Salgados', (p) => p.categoria === 'Salgado')}
+        {renderCategoria('Doces', (p) => p.categoria === 'Doce')}
+        {renderCategoria('Bebidas Quentes', (p) => p.categoria === 'Bebida' && p.tipo === 'Quente')}
+        {renderCategoria('Bebidas Geladas', (p) => p.categoria === 'Bebida' && p.tipo === 'Gelada')}
       </div>
     </div>
   );
 };
-
-
-
 
 export default Home;
