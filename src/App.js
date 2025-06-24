@@ -6,6 +6,7 @@ import Rodape from './components/rodape';
 import Inicio from './components/Inicio';
 import Home from './components/home';
 import Sobre from './components/Sobre';
+import AdminProdutos from './components/AdminProdutos';
 
 function App() {
   return (
@@ -15,6 +16,7 @@ function App() {
         <Route path="/" element={<Inicio />} />
         <Route path="/cardapio" element={<Home />} />
         <Route path="/sobre" element={<Sobre />} />
+        <Route path="/admin-produtos" element={<AdminProdutos />} />
       </Routes>
       <Rodape />
     </Router>
